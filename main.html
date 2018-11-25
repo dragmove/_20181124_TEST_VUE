@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>title</title>
+    <link rel="shortcut icon" type="image/x-icon" href="public/favicon.ico" />
+    <script src="https://unpkg.com/axios@0.12.0/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue" defer></script>
+    <style>
+      .overlay-fade-enter-active,
+      .overlay-fade-leave-active {
+        transition: opacity 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+      }
+      .overlay-fade-enter,
+      .overlay-fade-leave-to {
+        opacity: 0;
+      }
+      .overlay-fade-enter-to,
+      .overlay-fade-leave {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <overlay
+        color="rgba(0, 0, 0, 0.5)"
+        :is-show="isShowOverlay"
+        @click="clickOverlay"
+      ></overlay>
+    </div>
+
+    <script>
+      (function() {
+        // implementation
+        addListener(document, 'DOMContentLoaded', init);
+
+        function init() {
+          // components
+          Vue.component('overlay', {
+            props: {
+              color: String,
+              opacity: {
+                type: Number,
+                default: function() {
+                  return 1;
+                }
+              },
+              isShow: {
+                type: Boolean,
+                default: function() {
+                  return false;
+                }
+              }
+            },
+
+            template:
+              '<transition name="overlay-fade"><div class="overlay" style="position: fixed; width: 100%; height: 100%; top: 0; left: 0;" v-bind:style="{backgroundColor: color}" v-if="isShow" @click="click"></div></transition>',
+
+            methods: {
+              click: function() {
+                console.log('overlay component: click. $emit("click")');
+                this.$emit('click', this);
+              }
+            },
+
+            watch: {
+              isShow: function(flag) {
+                console.log(
+                  'overlay component: isShow prop is changed :',
+                  flag
+                );
+              }
+            },
+
+            beforeCreate: function() {
+              console.log('overlay component: beforeCreate hook');
+            },
+
+            created: function() {
+              console.log('overlay component: created hook');
+            }
+          });
+
+          window.app = new Vue({
+            el: '#app',
+            data: {
+              isShowOverlay: true
+            },
+            methods: {
+              clickOverlay: function(overlayContext) {
+                console.log('app: clickOverlay :', overlayContext);
+
+                this.isShowOverlay = false;
+              }
+            },
+            beforeCreate: function() {
+              console.log('app: beforeCreate hook');
+            },
+            created: function() {
+              console.log('app: created hook');
+            }
+          });
+        }
+
+        function addListener(
+          target = null,
+          type = '',
+          listener = null,
+          options = { capture: false, once: false, passive: false }
+        ) {
+          target.addEventListener(type, listener, options);
+        }
+
+        function removeListener(
+          target = null,
+          type = '',
+          listener = null,
+          options = { capture: false }
+        ) {
+          target.removeEventListener(type, listener, options);
+        }
+      })();
+    </script>
+    <script src="/client.js"></script>
+  </body>
+</html>
